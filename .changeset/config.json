@@ -5,6 +5,10 @@
   "format": "auto",
   "changelog": "@changesets/cli/changelog",
   "commit": true,
+  "privatePackages": {
+    "version": true,
+    "tag": true
+  },
   "ignore": [],
   "fixed": [],
   "linked": [],
