@@ -5,10 +5,15 @@ model User {
   emailVerified Boolean  @default(false)
   image         String?
   role          String   @default("consumer")
-  createdAt     TimestamptzString @default(now())
-  updatedAt     temporal.updatedAtString()
+  createdAt     DateTime @default(now())
+  updatedAt     temporal.updatedAt()
   sessions      Session[]
   accounts      Account[]
+
+  consultRequestsAsConsumer ConsultRequest[] @relation("ConsumerRequests")
+  consultRequestsAsProvider ConsultRequest[] @relation("ProviderRequests")
+  callSessionsAsConsumer    CallSession[]    @relation("ConsumerSessions")
+  callSessionsAsProvider    CallSession[]    @relation("ProviderSessions")
 
   @@unique([email])
   @@map("user")
@@ -16,10 +21,10 @@ model User {
 
 model Session {
   id        String   @id
-  expiresAt TimestamptzString
+  expiresAt DateTime
   token     String
-  createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString()
+  createdAt DateTime @default(now())
+  updatedAt temporal.updatedAt()
   ipAddress String?
   userAgent String?
   userId    String
@@ -39,13 +44,13 @@ model Account {
   accessToken           String?
   refreshToken          String?
   idToken               String?
-  accessTokenExpiresAt  TimestamptzString?
-  refreshTokenExpiresAt TimestamptzString?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
   issuer                String
-  createdAt             TimestamptzString @default(now())
-  updatedAt             temporal.updatedAtString()
+  createdAt             DateTime  @default(now())
+  updatedAt             temporal.updatedAt()
 
   @@unique([issuer, accountId])
   @@index([userId])
@@ -56,10 +61,63 @@ model Verification {
   id         String   @id
   identifier String
   value      String
-  expiresAt  TimestamptzString
-  createdAt  TimestamptzString @default(now())
-  updatedAt  temporal.updatedAtString()
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  temporal.updatedAt()
 
   @@index([identifier])
   @@map("verification")
+}
+
+enum ConsultRequestStatus {
+  pending
+  accepted
+  cancelled
+  expired
+  closed
+}
+
+enum CallSessionStatus {
+  ringing
+  active
+  ended
+  missed
+  failed
+}
+
+model ConsultRequest {
+  id         String               @id @default(uuid())
+  requestId  String               @unique
+  consumerId String
+  consumer   User                 @relation("ConsumerRequests", fields: [consumerId], references: [id])
+  providerId String?
+  provider   User?                @relation("ProviderRequests", fields: [providerId], references: [id])
+  status     ConsultRequestStatus @default(pending)
+  note       String?
+  createdAt  DateTime             @default(now())
+  acceptedAt DateTime?
+  closedAt   DateTime?
+
+  callSessions CallSession[]
+
+  @@index([consumerId, status])
+  @@map("consult_requests")
+}
+
+model CallSession {
+  id               String            @id @default(uuid())
+  consultRequestId String
+  consultRequest   ConsultRequest    @relation(fields: [consultRequestId], references: [id])
+  roomId           String            @unique
+  providerId       String
+  provider         User              @relation("ProviderSessions", fields: [providerId], references: [id])
+  consumerId       String
+  consumer         User              @relation("ConsumerSessions", fields: [consumerId], references: [id])
+  status           CallSessionStatus @default(ringing)
+  startedAt        DateTime?
+  endedAt          DateTime?
+  endReason        String?
+
+  @@index([consultRequestId])
+  @@map("call_sessions")
 }
