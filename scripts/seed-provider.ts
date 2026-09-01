@@ -1,4 +1,4 @@
-import { auth } from '../src/auth/auth.js';
+import { auth } from '../src/modules/auth/auth.js';
 
 const email = process.env.SEED_PROVIDER_EMAIL ?? 'provider@example.com';
 const password = process.env.SEED_PROVIDER_PASSWORD ?? 'Password123!';

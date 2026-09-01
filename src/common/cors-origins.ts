@@ -1,5 +1,8 @@
-import { CONSUMER_ORIGIN, PROVIDER_ORIGIN } from '../auth/app-origins.js';
 import { env } from '../env.js';
+import {
+  CONSUMER_ORIGIN,
+  PROVIDER_ORIGIN,
+} from '../modules/auth/app-origins.js';
 
 const DEFAULT_ORIGINS = [CONSUMER_ORIGIN, PROVIDER_ORIGIN] as const;
 

@@ -4,7 +4,11 @@ import {
   createAdapterFactory,
 } from 'better-auth/adapters';
 
-import { db } from '../prisma/db.js';
+import { db } from '../../prisma/db.js';
+import {
+  coerceTimestampsIn,
+  coerceTimestampsOut,
+} from '../../prisma/timestamps.js';
 
 type PrismaDb = typeof db;
 
@@ -115,16 +119,32 @@ async function asRows(result: unknown): Promise<any[]> {
   return [value as Record<string, unknown>];
 }
 
+function asRecord<T>(row: Record<string, unknown> | null): T | null {
+  return row as T | null;
+}
+
 export function createPrismaCustomAdapter(client: PrismaDb): CustomAdapter {
   return {
     async create({ model, data, select }) {
-      return withSelect(prismaModel(client, model), select).create(data);
+      const created = await withSelect(
+        prismaModel(client, model),
+        select,
+      ).create(coerceTimestampsIn(data as Record<string, unknown>));
+      const row = coerceTimestampsOut(created as Record<string, unknown>);
+      if (!row) {
+        throw new Error(`Failed to create ${model}`);
+      }
+      return row as typeof data;
     },
     async findOne({ model, where, select }) {
-      return withSelect(
-        withWhere(prismaModel(client, model), where),
-        select,
-      ).first();
+      return asRecord(
+        coerceTimestampsOut(
+          (await withSelect(
+            withWhere(prismaModel(client, model), where),
+            select,
+          ).first()) as Record<string, unknown> | null,
+        ),
+      );
     },
     async findMany({ model, where, limit, offset, select, sortBy }) {
       let query = withSelect(
@@ -143,19 +163,26 @@ export function createPrismaCustomAdapter(client: PrismaDb): CustomAdapter {
       if (offset) {
         query = query.offset(offset);
       }
-      return query.all();
+      const rows = await query.all();
+      return rows.map((row) =>
+        coerceTimestampsOut(row as Record<string, unknown>),
+      ) as typeof rows;
     },
     async update({ model, where, update }) {
       const rows = await asRows(
         withWhere(prismaModel(client, model), where).update(
-          update as Record<string, unknown>,
+          coerceTimestampsIn(update as Record<string, unknown>),
         ),
       );
-      return rows[0] ?? null;
+      return asRecord(
+        coerceTimestampsOut(rows[0] as Record<string, unknown> | null),
+      );
     },
     async updateMany({ model, where, update }) {
       const rows = await asRows(
-        withWhere(prismaModel(client, model), where).update(update),
+        withWhere(prismaModel(client, model), where).update(
+          coerceTimestampsIn(update as Record<string, unknown>),
+        ),
       );
       return rows.length;
     },
@@ -177,21 +204,23 @@ export function createPrismaCustomAdapter(client: PrismaDb): CustomAdapter {
         return null;
       }
       await withWhere(prismaModel(client, model), where).delete();
-      return row;
+      return asRecord(coerceTimestampsOut(row as Record<string, unknown>));
     },
     async incrementOne({ model, where, increment, set }) {
       const row = await withWhere(prismaModel(client, model), where).first();
       if (!row) {
         return null;
       }
-      const next: Record<string, unknown> = { ...set };
+      const next: Record<string, unknown> = coerceTimestampsIn({ ...set });
       for (const [field, delta] of Object.entries(increment)) {
         next[field] = Number(row[field] ?? 0) + Number(delta);
       }
       const rows = await asRows(
         withWhere(prismaModel(client, model), where).update(next),
       );
-      return rows[0] ?? null;
+      return asRecord(
+        coerceTimestampsOut(rows[0] as Record<string, unknown> | null),
+      );
     },
   };
 }

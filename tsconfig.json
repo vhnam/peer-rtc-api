@@ -11,6 +11,10 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "target": "ES2023",
+    "lib": [
+      "ES2023",
+      "ESNext.Temporal"
+    ],
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,

@@ -2,9 +2,9 @@ import { Logger } from '@nestjs/common';
 import { APIError, betterAuth } from 'better-auth';
 import { createAuthMiddleware } from 'better-auth/api';
 
-import { parseCorsOrigins } from '../common/cors-origins.js';
-import { env } from '../env.js';
-import { db } from '../prisma/db.js';
+import { parseCorsOrigins } from '../../common/cors-origins.js';
+import { env } from '../../env.js';
+import { db } from '../../prisma/db.js';
 import {
   assertCanRegister,
   assertCanSignIn,

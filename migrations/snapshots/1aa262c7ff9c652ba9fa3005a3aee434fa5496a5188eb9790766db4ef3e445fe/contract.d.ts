@@ -32,7 +32,7 @@ import type {
 } from '@prisma/orm-postgres/target/codec-types';
 
 export type StorageHash =
-  StorageHashBase<'bc8ed4077a8b51538c73a932b85c16b03473877f37c56e75b7c07c24a7fa24a5'>;
+  StorageHashBase<'1aa262c7ff9c652ba9fa3005a3aee434fa5496a5188eb9790766db4ef3e445fe'>;
 export type ExecutionHash =
   ExecutionHashBase<'99111b402b8430797640856e42f641286f2fb18fcf12bb24f8c8506c0b047f62'>;
 export type ProfileHash =
@@ -565,7 +565,6 @@ export type FieldOutputTypes = {
     };
     readonly ConsultRequest: {
       readonly id: CodecTypes['pg/text@1']['output'];
-      readonly requestId: CodecTypes['pg/text@1']['output'];
       readonly consumerId: CodecTypes['pg/text@1']['output'];
       readonly providerId: CodecTypes['pg/text@1']['output'] | null;
       readonly status:
@@ -650,7 +649,6 @@ export type FieldInputTypes = {
     };
     readonly ConsultRequest: {
       readonly id: CodecTypes['pg/text@1']['input'];
-      readonly requestId: CodecTypes['pg/text@1']['input'];
       readonly consumerId: CodecTypes['pg/text@1']['input'];
       readonly providerId: CodecTypes['pg/text@1']['input'] | null;
       readonly status:
@@ -747,7 +745,6 @@ export type StorageColumnTypes = {
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly note: CodecTypes['pg/text@1']['output'] | null;
       readonly providerId: CodecTypes['pg/text@1']['output'] | null;
-      readonly requestId: CodecTypes['pg/text@1']['output'];
       readonly status:
         | 'pending'
         | 'accepted'
@@ -832,7 +829,6 @@ export type StorageColumnInputTypes = {
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly note: CodecTypes['pg/text@1']['input'] | null;
       readonly providerId: CodecTypes['pg/text@1']['input'] | null;
-      readonly requestId: CodecTypes['pg/text@1']['input'];
       readonly status:
         | 'pending'
         | 'accepted'
@@ -1112,11 +1108,6 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
                 };
-                readonly requestId: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
                 readonly consumerId: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
@@ -1162,7 +1153,7 @@ type ContractBase = Omit<
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['requestId'] }];
+              uniques: readonly [];
               indexes: readonly [
                 {
                   readonly name: 'consult_requests_consumerId_status_idx_cb1c0053';
@@ -1723,13 +1714,6 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                 };
               };
-              readonly requestId: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/text@1';
-                };
-              };
               readonly consumerId: {
                 readonly nullable: false;
                 readonly type: {
@@ -1820,7 +1804,6 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly id: { readonly column: 'id' };
-                readonly requestId: { readonly column: 'requestId' };
                 readonly consumerId: { readonly column: 'consumerId' };
                 readonly providerId: { readonly column: 'providerId' };
                 readonly status: { readonly column: 'status' };

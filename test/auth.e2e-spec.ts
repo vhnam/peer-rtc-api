@@ -4,9 +4,12 @@ import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { AppModule } from '../src/app.module.js';
-import { CONSUMER_ORIGIN, PROVIDER_ORIGIN } from '../src/auth/app-origins.js';
-import { auth } from '../src/auth/auth.js';
 import { parseCorsOrigins } from '../src/common/cors-origins.js';
+import {
+  CONSUMER_ORIGIN,
+  PROVIDER_ORIGIN,
+} from '../src/modules/auth/app-origins.js';
+import { auth } from '../src/modules/auth/auth.js';
 
 const PASSWORD = 'Password123!';
 
