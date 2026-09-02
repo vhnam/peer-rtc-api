@@ -60,3 +60,6 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 certs/*.pem
 node_modules/
 dist/
+
+# AI Agents
+.devin
