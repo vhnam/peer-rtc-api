@@ -1,5 +1,11 @@
 # peer-rtc-api
 
+## 0.2.0
+
+### Minor Changes
+
+- cd6d9b2: Add Socket.IO call signaling (`provider_joined`, `consumer_accepted`, `consumer_declined`) keyed by `consultRequestId`. Include the assigned provider on consult-request responses. Limit consult and call statuses to pending, accepted, canceled, and closed.
+
 ## 0.1.1
 
 ### Patch Changes
