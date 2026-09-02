@@ -111,15 +111,15 @@ export function planUpdateConsultRequest(
     return { ok: true, value: write };
   }
 
-  if (patch.status === 'cancelled') {
+  if (patch.status === 'canceled') {
     if (actor.role !== 'consumer' || existing.status !== 'pending') {
       return {
         ok: false,
         status: 409,
-        message: 'Consult request cannot be cancelled',
+        message: 'Consult request cannot be canceled',
       };
     }
-    write.status = 'cancelled';
+    write.status = 'canceled';
     return { ok: true, value: write };
   }
 

@@ -33,7 +33,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'05381d0db108114ffa5157cc45745415b9c7c538dc735a50f37d587c29075c6c'>;
+  StorageHashBase<'8c6700d113c19c40d9d7a71870e7821b82cb18739dc437e9eda2ad0fb6a23332'>;
 export type ExecutionHash =
   ExecutionHashBase<'99111b402b8430797640856e42f641286f2fb18fcf12bb24f8c8506c0b047f62'>;
 export type ProfileHash =
@@ -263,7 +263,7 @@ export type FieldOutputTypes = {
       readonly roomId: CodecTypes['pg/text@1']['output'];
       readonly providerId: CodecTypes['pg/text@1']['output'];
       readonly consumerId: CodecTypes['pg/text@1']['output'];
-      readonly status: 'pending' | 'accepted' | 'canceled' | 'closed';
+      readonly status: 'ringing' | 'active' | 'ended' | 'missed' | 'failed';
       readonly startedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
       readonly endedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
       readonly endReason: CodecTypes['pg/text@1']['output'] | null;
@@ -273,7 +273,7 @@ export type FieldOutputTypes = {
       readonly requestId: CodecTypes['pg/text@1']['output'];
       readonly consumerId: CodecTypes['pg/text@1']['output'];
       readonly providerId: CodecTypes['pg/text@1']['output'] | null;
-      readonly status: 'pending' | 'accepted' | 'canceled' | 'closed';
+      readonly status: 'pending' | 'accepted' | 'canceled' | 'expired' | 'closed';
       readonly note: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly acceptedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
@@ -333,7 +333,7 @@ export type FieldInputTypes = {
       readonly roomId: CodecTypes['pg/text@1']['input'];
       readonly providerId: CodecTypes['pg/text@1']['input'];
       readonly consumerId: CodecTypes['pg/text@1']['input'];
-      readonly status: 'pending' | 'accepted' | 'canceled' | 'closed';
+      readonly status: 'ringing' | 'active' | 'ended' | 'missed' | 'failed';
       readonly startedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
       readonly endedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
       readonly endReason: CodecTypes['pg/text@1']['input'] | null;
@@ -343,7 +343,7 @@ export type FieldInputTypes = {
       readonly requestId: CodecTypes['pg/text@1']['input'];
       readonly consumerId: CodecTypes['pg/text@1']['input'];
       readonly providerId: CodecTypes['pg/text@1']['input'] | null;
-      readonly status: 'pending' | 'accepted' | 'canceled' | 'closed';
+      readonly status: 'pending' | 'accepted' | 'canceled' | 'expired' | 'closed';
       readonly note: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly acceptedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
@@ -406,7 +406,7 @@ export type StorageColumnTypes = {
       readonly providerId: CodecTypes['pg/text@1']['output'];
       readonly roomId: CodecTypes['pg/text@1']['output'];
       readonly startedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
-      readonly status: 'pending' | 'accepted' | 'canceled' | 'closed';
+      readonly status: 'ringing' | 'active' | 'ended' | 'missed' | 'failed';
     };
     readonly consult_requests: {
       readonly acceptedAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
@@ -417,7 +417,7 @@ export type StorageColumnTypes = {
       readonly note: CodecTypes['pg/text@1']['output'] | null;
       readonly providerId: CodecTypes['pg/text@1']['output'] | null;
       readonly requestId: CodecTypes['pg/text@1']['output'];
-      readonly status: 'pending' | 'accepted' | 'canceled' | 'closed';
+      readonly status: 'pending' | 'accepted' | 'canceled' | 'expired' | 'closed';
     };
     readonly session: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
@@ -476,7 +476,7 @@ export type StorageColumnInputTypes = {
       readonly providerId: CodecTypes['pg/text@1']['input'];
       readonly roomId: CodecTypes['pg/text@1']['input'];
       readonly startedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
-      readonly status: 'pending' | 'accepted' | 'canceled' | 'closed';
+      readonly status: 'ringing' | 'active' | 'ended' | 'missed' | 'failed';
     };
     readonly consult_requests: {
       readonly acceptedAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
@@ -487,7 +487,7 @@ export type StorageColumnInputTypes = {
       readonly note: CodecTypes['pg/text@1']['input'] | null;
       readonly providerId: CodecTypes['pg/text@1']['input'] | null;
       readonly requestId: CodecTypes['pg/text@1']['input'];
-      readonly status: 'pending' | 'accepted' | 'canceled' | 'closed';
+      readonly status: 'pending' | 'accepted' | 'canceled' | 'expired' | 'closed';
     };
     readonly session: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -669,7 +669,7 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly default: {
                     readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/text@1', 'pending'>;
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'ringing'>;
                   };
                 };
                 readonly startedAt: {
@@ -1027,11 +1027,11 @@ type ContractBase = Omit<
           readonly valueSet: {
             readonly CallSessionStatus: {
               readonly kind: 'valueSet';
-              readonly values: readonly ['pending', 'accepted', 'canceled', 'closed'];
+              readonly values: readonly ['ringing', 'active', 'ended', 'missed', 'failed'];
             };
             readonly ConsultRequestStatus: {
               readonly kind: 'valueSet';
-              readonly values: readonly ['pending', 'accepted', 'canceled', 'closed'];
+              readonly values: readonly ['pending', 'accepted', 'canceled', 'expired', 'closed'];
             };
           };
         };
@@ -1600,16 +1600,18 @@ type ContractBase = Omit<
               { readonly name: 'pending'; readonly value: 'pending' },
               { readonly name: 'accepted'; readonly value: 'accepted' },
               { readonly name: 'canceled'; readonly value: 'canceled' },
+              { readonly name: 'expired'; readonly value: 'expired' },
               { readonly name: 'closed'; readonly value: 'closed' },
             ];
           };
           readonly CallSessionStatus: {
             readonly codecId: 'pg/text@1';
             readonly members: readonly [
-              { readonly name: 'pending'; readonly value: 'pending' },
-              { readonly name: 'accepted'; readonly value: 'accepted' },
-              { readonly name: 'canceled'; readonly value: 'canceled' },
-              { readonly name: 'closed'; readonly value: 'closed' },
+              { readonly name: 'ringing'; readonly value: 'ringing' },
+              { readonly name: 'active'; readonly value: 'active' },
+              { readonly name: 'ended'; readonly value: 'ended' },
+              { readonly name: 'missed'; readonly value: 'missed' },
+              { readonly name: 'failed'; readonly value: 'failed' },
             ];
           };
         };

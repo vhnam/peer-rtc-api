@@ -89,7 +89,7 @@ export class ConsultRequestsService {
     id: string,
   ): Promise<ConsultRequestDto> {
     const actor = unwrap(actorFromSession(session));
-    const existing = await this.withConsumer().first({
+    const existing = await this.withUsers().first({
       id,
     });
     if (!existing) {
@@ -113,7 +113,7 @@ export class ConsultRequestsService {
     for (let attempt = 0; attempt < 5; attempt += 1) {
       const requestId = await this.allocateRequestId();
       try {
-        const created = await this.withConsumer().create({
+        const created = await this.withUsers().create({
           id: crypto.randomUUID(),
           requestId,
           consumerId: planned.consumerId,
@@ -121,7 +121,7 @@ export class ConsultRequestsService {
           note: planned.note,
         });
         return serializeConsultRequest(
-          asConsultRequestRow(await this.requireWithConsumer(created)),
+          asConsultRequestRow(await this.requireWithUsers(created)),
         );
       } catch (error) {
         if (!isUniqueViolation(error) || attempt === 4) {
@@ -139,7 +139,7 @@ export class ConsultRequestsService {
     input: UpdateConsultRequestInput,
   ): Promise<ConsultRequestDto> {
     const actor = unwrap(actorFromSession(session));
-    const existing = await this.withConsumer().first({
+    const existing = await this.withUsers().first({
       id,
     });
     if (!existing) {
@@ -149,7 +149,7 @@ export class ConsultRequestsService {
     const planned = unwrap(
       planUpdateConsultRequest(actor, asConsultRequestRow(existing), input),
     );
-    const updated = await this.withConsumer()
+    const updated = await this.withUsers()
       .where({
         id,
       })
@@ -159,7 +159,7 @@ export class ConsultRequestsService {
       throw new NotFoundException('Consult request not found');
     }
     return serializeConsultRequest(
-      asConsultRequestRow(await this.requireWithConsumer(row)),
+      asConsultRequestRow(await this.requireWithUsers(row)),
     );
   }
 
@@ -167,7 +167,7 @@ export class ConsultRequestsService {
     actor: ConsultRequestActor,
   ): Promise<ConsultRequestRow[]> {
     if (actor.role === 'consumer') {
-      const rows = await this.withConsumer()
+      const rows = await this.withUsers()
         .where({
           consumerId: actor.id,
         })
@@ -176,11 +176,11 @@ export class ConsultRequestsService {
     }
 
     const [queue, assigned] = await Promise.all([
-      this.withConsumer()
+      this.withUsers()
         .where((row) => row.providerId.isNull())
         .where({ status: 'pending' })
         .all(),
-      this.withConsumer()
+      this.withUsers()
         .where({
           providerId: actor.id,
         })
@@ -194,20 +194,29 @@ export class ConsultRequestsService {
     return [...byId.values()];
   }
 
-  private withConsumer() {
+  private withUsers() {
     return this.prisma.db.orm.public.ConsultRequest.include(
       'consumer',
       (consumer) => consumer.select('id', 'name', 'email', 'image', 'role'),
+    ).include('provider', (provider) =>
+      provider.select('id', 'name', 'email', 'image', 'role'),
     );
   }
 
-  private async requireWithConsumer<
-    T extends { id: string; consumer?: unknown },
+  private async requireWithUsers<
+    T extends {
+      id: string;
+      consumer?: unknown;
+      provider?: unknown;
+      providerId?: string | null;
+    },
   >(row: T) {
-    if (row.consumer) {
+    const hasConsumer = Boolean(row.consumer);
+    const hasProvider = !row.providerId || Boolean(row.provider);
+    if (hasConsumer && hasProvider) {
       return row;
     }
-    const loaded = await this.withConsumer().first({ id: row.id });
+    const loaded = await this.withUsers().first({ id: row.id });
     if (!loaded) {
       throw new NotFoundException('Consult request not found');
     }

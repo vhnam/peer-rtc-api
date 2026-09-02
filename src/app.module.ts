@@ -4,11 +4,17 @@ import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { auth } from './modules/auth/auth.js';
+import { CallSessionsModule } from './modules/call-sessions/call-sessions.module.js';
 import { ConsultRequestsModule } from './modules/consult-requests/consult-requests.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 
 @Module({
-  imports: [PrismaModule, AuthModule.forRoot({ auth }), ConsultRequestsModule],
+  imports: [
+    PrismaModule,
+    AuthModule.forRoot({ auth }),
+    ConsultRequestsModule,
+    CallSessionsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

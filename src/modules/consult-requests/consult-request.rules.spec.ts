@@ -152,12 +152,12 @@ describe('planUpdateConsultRequest', () => {
         { id: 'consumer-1', role: 'consumer' },
         pending,
         {
-          status: 'cancelled',
+          status: 'canceled',
         },
       ),
     ).toMatchObject({
       ok: true,
-      value: { status: 'cancelled' },
+      value: { status: 'canceled' },
     });
   });
 
@@ -220,7 +220,7 @@ describe('planUpdateConsultRequest', () => {
         { id: 'consumer-2', role: 'consumer' },
         pending,
         {
-          status: 'cancelled',
+          status: 'canceled',
         },
       ),
     ).toMatchObject({ ok: false, status: 404 });
@@ -271,7 +271,7 @@ describe('planUpdateConsultRequest', () => {
       planUpdateConsultRequest(
         { id: 'consumer-1', role: 'consumer' },
         { ...pending, status: 'accepted', providerId: 'provider-1' },
-        { status: 'cancelled' },
+        { status: 'canceled' },
       ),
     ).toMatchObject({ ok: false, status: 409 });
   });
@@ -281,7 +281,7 @@ describe('planUpdateConsultRequest', () => {
       planUpdateConsultRequest(
         { id: 'provider-1', role: 'provider' },
         pending,
-        { status: 'cancelled' },
+        { status: 'canceled' },
       ),
     ).toMatchObject({ ok: false, status: 409 });
   });
