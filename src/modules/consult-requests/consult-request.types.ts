@@ -5,8 +5,7 @@ import type { UserRole } from '../auth/roles.js';
 export const CONSULT_REQUEST_STATUSES = [
   'pending',
   'accepted',
-  'cancelled',
-  'expired',
+  'canceled',
   'closed',
 ] as const;
 
@@ -14,7 +13,7 @@ export type ConsultRequestStatus = (typeof CONSULT_REQUEST_STATUSES)[number];
 
 export const CONSULT_REQUEST_UPDATE_STATUSES = [
   'accepted',
-  'cancelled',
+  'canceled',
   'closed',
 ] as const;
 

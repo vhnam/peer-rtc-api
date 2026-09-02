@@ -72,17 +72,15 @@ model Verification {
 enum ConsultRequestStatus {
   pending
   accepted
-  cancelled
-  expired
+  canceled
   closed
 }
 
 enum CallSessionStatus {
-  ringing
-  active
-  ended
-  missed
-  failed
+  pending
+  accepted
+  canceled
+  closed
 }
 
 model ConsultRequest {
@@ -113,7 +111,7 @@ model CallSession {
   provider         User              @relation("ProviderSessions", fields: [providerId], references: [id])
   consumerId       String
   consumer         User              @relation("ConsumerSessions", fields: [consumerId], references: [id])
-  status           CallSessionStatus @default(ringing)
+  status           CallSessionStatus @default(pending)
   startedAt        DateTime?
   endedAt          DateTime?
   endReason        String?

@@ -222,7 +222,7 @@ describe('Consult requests (e2e)', () => {
       .patch(`/api/consult-requests/${open.id}`)
       .set('Origin', CONSUMER_ORIGIN)
       .set('Cookie', consumer.cookies)
-      .send({ status: 'cancelled' })
+      .send({ status: 'canceled' })
       .expect(200);
     const stillOpen = await createRequest(consumer.cookies, { note: 'still' });
 
@@ -299,13 +299,13 @@ describe('Consult requests (e2e)', () => {
       .expect(200);
     expect(noted.body.note).toBe('updated note');
 
-    const cancelled = await request(server)
+    const canceled = await request(server)
       .patch(`/api/consult-requests/${created.id}`)
       .set('Origin', CONSUMER_ORIGIN)
       .set('Cookie', consumer.cookies)
-      .send({ status: 'cancelled' })
+      .send({ status: 'canceled' })
       .expect(200);
-    expect(cancelled.body.status).toBe('cancelled');
+    expect(canceled.body.status).toBe('canceled');
   });
 
   it('lets a provider accept a pending consult request', async () => {
@@ -335,8 +335,31 @@ describe('Consult requests (e2e)', () => {
       id: created.id,
       status: 'accepted',
       providerId: provider.user.id,
+      provider: {
+        id: provider.user.id,
+        name: 'consult-accept-provider',
+        email: provider.user.email,
+      },
     });
     expect(accepted.body.acceptedAt).toEqual(expect.any(String));
+
+    const listedAfterAccept = await request(server)
+      .get('/api/consult-requests')
+      .set('Origin', CONSUMER_ORIGIN)
+      .set('Cookie', consumer.cookies)
+      .expect(200);
+    expect(listedAfterAccept.body.data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: created.id,
+          providerId: provider.user.id,
+          provider: expect.objectContaining({
+            id: provider.user.id,
+            email: provider.user.email,
+          }),
+        }),
+      ]),
+    );
   });
 
   it('lets the consumer close an accepted request', async () => {
@@ -507,7 +530,7 @@ describe('Consult requests (e2e)', () => {
       .patch(`/api/consult-requests/${missingId}`)
       .set('Origin', CONSUMER_ORIGIN)
       .set('Cookie', consumer.cookies)
-      .send({ status: 'cancelled' })
+      .send({ status: 'canceled' })
       .expect(404);
   });
 
@@ -542,7 +565,7 @@ describe('Consult requests (e2e)', () => {
     await request(server).post('/api/consult-requests').send({}).expect(401);
     await request(server)
       .patch('/api/consult-requests/req-1')
-      .send({ status: 'cancelled' })
+      .send({ status: 'canceled' })
       .expect(401);
   });
 });

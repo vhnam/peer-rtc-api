@@ -25,6 +25,16 @@ function consumerDto(id = 'consumer-1') {
   };
 }
 
+function providerDto(id = 'provider-1') {
+  return {
+    id,
+    name: 'Grace',
+    email: `${id}@example.com`,
+    image: null,
+    role: 'provider',
+  };
+}
+
 function pendingRow(overrides: Record<string, unknown> = {}) {
   return {
     id: 'req-1',
@@ -137,6 +147,35 @@ describe('ConsultRequestsService', () => {
       expect.objectContaining({ id: 'theirs', consumerId: 'consumer-2' }),
     ]);
     expect(listed.total).toBe(1);
+  });
+
+  it('serializes the assigned provider on listed requests', async () => {
+    consult.all.mockResolvedValue([
+      pendingRow({
+        id: 'accepted',
+        status: 'accepted',
+        providerId: 'provider-1',
+        provider: providerDto(),
+      }),
+    ]);
+
+    const listed = await service.list(
+      { user: { id: 'consumer-1', role: 'consumer' } } as never,
+      { page: 1, limit: 20 },
+    );
+
+    expect(listed.data).toEqual([
+      expect.objectContaining({
+        id: 'accepted',
+        providerId: 'provider-1',
+        provider: {
+          id: 'provider-1',
+          name: 'Grace',
+          email: 'provider-1@example.com',
+          image: null,
+        },
+      }),
+    ]);
   });
 
   it('filters listed requests by requestId', async () => {
@@ -296,7 +335,7 @@ describe('ConsultRequestsService', () => {
       service.update(
         { user: { id: 'consumer-1', role: 'consumer' } } as never,
         'missing',
-        { status: 'cancelled' },
+        { status: 'canceled' },
       ),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
@@ -305,10 +344,46 @@ describe('ConsultRequestsService', () => {
     const updated = await service.update(
       { user: { id: 'consumer-1', role: 'consumer' } } as never,
       'req-1',
-      { status: 'cancelled' },
+      { status: 'canceled' },
     );
 
-    expect(consult.update).toHaveBeenCalledWith({ status: 'cancelled' });
-    expect(updated.status).toBe('cancelled');
+    expect(consult.update).toHaveBeenCalledWith({ status: 'canceled' });
+    expect(updated.status).toBe('canceled');
+  });
+
+  it('reloads the assigned provider after accept when the update row omits it', async () => {
+    consult.update.mockResolvedValue([
+      pendingRow({
+        status: 'accepted',
+        providerId: 'provider-1',
+      }),
+    ]);
+    consult.first
+      .mockResolvedValueOnce(pendingRow())
+      .mockResolvedValueOnce(
+        pendingRow({
+          status: 'accepted',
+          providerId: 'provider-1',
+          provider: providerDto(),
+        }),
+      );
+
+    const updated = await service.update(
+      { user: { id: 'provider-1', role: 'provider' } } as never,
+      'req-1',
+      { status: 'accepted' },
+    );
+
+    expect(updated).toMatchObject({
+      status: 'accepted',
+      providerId: 'provider-1',
+      provider: {
+        id: 'provider-1',
+        name: 'Grace',
+        email: 'provider-1@example.com',
+        image: null,
+      },
+    });
+    expect(consult.first).toHaveBeenCalledTimes(2);
   });
 });

@@ -5,6 +5,7 @@ import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module.js';
 import { parseCorsOrigins } from './common/cors-origins.js';
+import { SocketIoAdapter } from './common/socket-io.adapter.js';
 import { env } from './env.js';
 
 function httpsOptions() {
@@ -27,6 +28,7 @@ async function bootstrap() {
     origin: parseCorsOrigins(),
     credentials: true,
   });
+  app.useWebSocketAdapter(new SocketIoAdapter(app));
   const port = env.PORT ?? 8080;
   await app.listen(port);
   Logger.log(`Listening on ${await app.getUrl()}`, 'Bootstrap');

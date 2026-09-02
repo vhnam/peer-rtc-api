@@ -36,8 +36,8 @@ describe('parseCreateConsultRequestBody', () => {
 
 describe('parseUpdateConsultRequestBody', () => {
   it('accepts a cancellable status', () => {
-    expect(parseUpdateConsultRequestBody({ status: 'cancelled' })).toEqual({
-      status: 'cancelled',
+    expect(parseUpdateConsultRequestBody({ status: 'canceled' })).toEqual({
+      status: 'canceled',
     });
   });
 
@@ -53,7 +53,7 @@ describe('parseUpdateConsultRequestBody', () => {
     );
   });
 
-  it('rejects expired as an update status', () => {
+  it('rejects an unknown update status', () => {
     expect(() => parseUpdateConsultRequestBody({ status: 'expired' })).toThrow(
       BadRequestException,
     );

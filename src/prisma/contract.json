@@ -37,24 +37,20 @@
             "codecId": "pg/text@1",
             "members": [
               {
-                "name": "ringing",
-                "value": "ringing"
+                "name": "pending",
+                "value": "pending"
               },
               {
-                "name": "active",
-                "value": "active"
+                "name": "accepted",
+                "value": "accepted"
               },
               {
-                "name": "ended",
-                "value": "ended"
+                "name": "canceled",
+                "value": "canceled"
               },
               {
-                "name": "missed",
-                "value": "missed"
-              },
-              {
-                "name": "failed",
-                "value": "failed"
+                "name": "closed",
+                "value": "closed"
               }
             ]
           },
@@ -70,12 +66,8 @@
                 "value": "accepted"
               },
               {
-                "name": "cancelled",
-                "value": "cancelled"
-              },
-              {
-                "name": "expired",
-                "value": "expired"
+                "name": "canceled",
+                "value": "canceled"
               },
               {
                 "name": "closed",
@@ -1050,8 +1042,8 @@
             "call_sessions": {
               "checks": [
                 {
-                  "expression": "\"status\" IN ('ringing', 'active', 'ended', 'missed', 'failed')",
-                  "name": "call_sessions_status_check_5cec30b9",
+                  "expression": "\"status\" IN ('pending', 'accepted', 'canceled', 'closed')",
+                  "name": "call_sessions_status_check_63dcedd2",
                   "prefix": "call_sessions_status_check"
                 }
               ],
@@ -1100,7 +1092,7 @@
                   "codecId": "pg/text@1",
                   "default": {
                     "kind": "literal",
-                    "value": "ringing"
+                    "value": "pending"
                   },
                   "nativeType": "text",
                   "nullable": false,
@@ -1204,8 +1196,8 @@
             "consult_requests": {
               "checks": [
                 {
-                  "expression": "\"status\" IN ('pending', 'accepted', 'cancelled', 'expired', 'closed')",
-                  "name": "consult_requests_status_check_9685e242",
+                  "expression": "\"status\" IN ('pending', 'accepted', 'canceled', 'closed')",
+                  "name": "consult_requests_status_check_63dcedd2",
                   "prefix": "consult_requests_status_check"
                 }
               ],
@@ -1563,11 +1555,10 @@
             "CallSessionStatus": {
               "kind": "valueSet",
               "values": [
-                "ringing",
-                "active",
-                "ended",
-                "missed",
-                "failed"
+                "pending",
+                "accepted",
+                "canceled",
+                "closed"
               ]
             },
             "ConsultRequestStatus": {
@@ -1575,8 +1566,7 @@
               "values": [
                 "pending",
                 "accepted",
-                "cancelled",
-                "expired",
+                "canceled",
                 "closed"
               ]
             }
@@ -1586,7 +1576,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "bc8ed4077a8b51538c73a932b85c16b03473877f37c56e75b7c07c24a7fa24a5"
+    "storageHash": "05381d0db108114ffa5157cc45745415b9c7c538dc735a50f37d587c29075c6c"
   },
   "execution": {
     "executionHash": "99111b402b8430797640856e42f641286f2fb18fcf12bb24f8c8506c0b047f62",
