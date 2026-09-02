@@ -190,8 +190,12 @@
               "user": {
                 "cardinality": "N:1",
                 "on": {
-                  "localFields": ["userId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "User",
@@ -324,8 +328,12 @@
               "consultRequest": {
                 "cardinality": "N:1",
                 "on": {
-                  "localFields": ["consultRequestId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "consultRequestId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "ConsultRequest",
@@ -335,8 +343,12 @@
               "consumer": {
                 "cardinality": "N:1",
                 "on": {
-                  "localFields": ["consumerId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "consumerId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "User",
@@ -346,8 +358,12 @@
               "provider": {
                 "cardinality": "N:1",
                 "on": {
-                  "localFields": ["providerId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "providerId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "User",
@@ -465,8 +481,12 @@
               "callSessions": {
                 "cardinality": "1:N",
                 "on": {
-                  "localFields": ["id"],
-                  "targetFields": ["consultRequestId"]
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "consultRequestId"
+                  ]
                 },
                 "to": {
                   "model": "CallSession",
@@ -476,8 +496,12 @@
               "consumer": {
                 "cardinality": "N:1",
                 "on": {
-                  "localFields": ["consumerId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "consumerId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "User",
@@ -487,8 +511,12 @@
               "provider": {
                 "cardinality": "N:1",
                 "on": {
-                  "localFields": ["providerId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "providerId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "User",
@@ -593,8 +621,12 @@
               "user": {
                 "cardinality": "N:1",
                 "on": {
-                  "localFields": ["userId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "User",
@@ -696,8 +728,12 @@
               "accounts": {
                 "cardinality": "1:N",
                 "on": {
-                  "localFields": ["id"],
-                  "targetFields": ["userId"]
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
                 },
                 "to": {
                   "model": "Account",
@@ -707,8 +743,12 @@
               "callSessionsAsConsumer": {
                 "cardinality": "1:N",
                 "on": {
-                  "localFields": ["id"],
-                  "targetFields": ["consumerId"]
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "consumerId"
+                  ]
                 },
                 "to": {
                   "model": "CallSession",
@@ -718,8 +758,12 @@
               "callSessionsAsProvider": {
                 "cardinality": "1:N",
                 "on": {
-                  "localFields": ["id"],
-                  "targetFields": ["providerId"]
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "providerId"
+                  ]
                 },
                 "to": {
                   "model": "CallSession",
@@ -729,8 +773,12 @@
               "consultRequestsAsConsumer": {
                 "cardinality": "1:N",
                 "on": {
-                  "localFields": ["id"],
-                  "targetFields": ["consumerId"]
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "consumerId"
+                  ]
                 },
                 "to": {
                   "model": "ConsultRequest",
@@ -740,8 +788,12 @@
               "consultRequestsAsProvider": {
                 "cardinality": "1:N",
                 "on": {
-                  "localFields": ["id"],
-                  "targetFields": ["providerId"]
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "providerId"
+                  ]
                 },
                 "to": {
                   "model": "ConsultRequest",
@@ -751,8 +803,12 @@
               "sessions": {
                 "cardinality": "1:N",
                 "on": {
-                  "localFields": ["id"],
-                  "targetFields": ["userId"]
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
                 },
                 "to": {
                   "model": "Session",
@@ -952,12 +1008,16 @@
                 {
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["userId"],
+                    "columns": [
+                      "userId"
+                    ],
                     "namespaceId": "public",
                     "tableName": "account"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "user"
                   }
@@ -965,18 +1025,25 @@
               ],
               "indexes": [
                 {
-                  "columns": ["userId"],
+                  "columns": [
+                    "userId"
+                  ],
                   "name": "account_userId_idx_a489d58a",
                   "prefix": "account_userId_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["issuer", "accountId"]
+                  "columns": [
+                    "issuer",
+                    "accountId"
+                  ]
                 }
               ]
             },
@@ -1048,36 +1115,48 @@
               "foreignKeys": [
                 {
                   "source": {
-                    "columns": ["consultRequestId"],
+                    "columns": [
+                      "consultRequestId"
+                    ],
                     "namespaceId": "public",
                     "tableName": "call_sessions"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "consult_requests"
                   }
                 },
                 {
                   "source": {
-                    "columns": ["providerId"],
+                    "columns": [
+                      "providerId"
+                    ],
                     "namespaceId": "public",
                     "tableName": "call_sessions"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "user"
                   }
                 },
                 {
                   "source": {
-                    "columns": ["consumerId"],
+                    "columns": [
+                      "consumerId"
+                    ],
                     "namespaceId": "public",
                     "tableName": "call_sessions"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "user"
                   }
@@ -1085,30 +1164,40 @@
               ],
               "indexes": [
                 {
-                  "columns": ["consultRequestId"],
+                  "columns": [
+                    "consultRequestId"
+                  ],
                   "name": "call_sessions_consultRequestId_idx_f791759d",
                   "prefix": "call_sessions_consultRequestId_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["consumerId"],
+                  "columns": [
+                    "consumerId"
+                  ],
                   "name": "call_sessions_consumerId_idx_48e25188",
                   "prefix": "call_sessions_consumerId_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["providerId"],
+                  "columns": [
+                    "providerId"
+                  ],
                   "name": "call_sessions_providerId_idx_d1904c54",
                   "prefix": "call_sessions_providerId_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["roomId"]
+                  "columns": [
+                    "roomId"
+                  ]
                 }
               ]
             },
@@ -1184,24 +1273,32 @@
               "foreignKeys": [
                 {
                   "source": {
-                    "columns": ["consumerId"],
+                    "columns": [
+                      "consumerId"
+                    ],
                     "namespaceId": "public",
                     "tableName": "consult_requests"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "user"
                   }
                 },
                 {
                   "source": {
-                    "columns": ["providerId"],
+                    "columns": [
+                      "providerId"
+                    ],
                     "namespaceId": "public",
                     "tableName": "consult_requests"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "user"
                   }
@@ -1209,30 +1306,41 @@
               ],
               "indexes": [
                 {
-                  "columns": ["consumerId"],
+                  "columns": [
+                    "consumerId"
+                  ],
                   "name": "consult_requests_consumerId_idx_48e25188",
                   "prefix": "consult_requests_consumerId_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["consumerId", "status"],
+                  "columns": [
+                    "consumerId",
+                    "status"
+                  ],
                   "name": "consult_requests_consumerId_status_idx_cb1c0053",
                   "prefix": "consult_requests_consumerId_status_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["providerId"],
+                  "columns": [
+                    "providerId"
+                  ],
                   "name": "consult_requests_providerId_idx_d1904c54",
                   "prefix": "consult_requests_providerId_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["requestId"]
+                  "columns": [
+                    "requestId"
+                  ]
                 }
               ]
             },
@@ -1287,12 +1395,16 @@
                 {
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["userId"],
+                    "columns": [
+                      "userId"
+                    ],
                     "namespaceId": "public",
                     "tableName": "session"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "user"
                   }
@@ -1300,18 +1412,24 @@
               ],
               "indexes": [
                 {
-                  "columns": ["userId"],
+                  "columns": [
+                    "userId"
+                  ],
                   "name": "session_userId_idx_a489d58a",
                   "prefix": "session_userId_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["token"]
+                  "columns": [
+                    "token"
+                  ]
                 }
               ]
             },
@@ -1373,11 +1491,15 @@
               "foreignKeys": [],
               "indexes": [],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["email"]
+                  "columns": [
+                    "email"
+                  ]
                 }
               ]
             },
@@ -1421,14 +1543,18 @@
               "foreignKeys": [],
               "indexes": [
                 {
-                  "columns": ["identifier"],
+                  "columns": [
+                    "identifier"
+                  ],
                   "name": "verification_identifier_idx_79a0dbb3",
                   "prefix": "verification_identifier_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": []
             }
@@ -1436,7 +1562,13 @@
           "valueSet": {
             "CallSessionStatus": {
               "kind": "valueSet",
-              "values": ["ringing", "active", "ended", "missed", "failed"]
+              "values": [
+                "ringing",
+                "active",
+                "ended",
+                "missed",
+                "failed"
+              ]
             },
             "ConsultRequestStatus": {
               "kind": "valueSet",

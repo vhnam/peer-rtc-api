@@ -250,6 +250,45 @@ describe('ConsultRequestsService', () => {
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
+  it('returns a request the actor can access', async () => {
+    const found = await service.get(
+      { user: { id: 'consumer-1', role: 'consumer' } } as never,
+      'req-1',
+    );
+
+    expect(consult.first).toHaveBeenCalledWith({ id: 'req-1' });
+    expect(found).toMatchObject({
+      id: 'req-1',
+      status: 'pending',
+      consumer: {
+        id: 'consumer-1',
+        name: 'Ada',
+        email: 'consumer-1@example.com',
+        image: null,
+      },
+    });
+  });
+
+  it('returns 404 when getting a missing request', async () => {
+    consult.first.mockResolvedValue(null);
+
+    await expect(
+      service.get(
+        { user: { id: 'consumer-1', role: 'consumer' } } as never,
+        'missing',
+      ),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('returns 404 when getting a request the actor cannot access', async () => {
+    await expect(
+      service.get(
+        { user: { id: 'consumer-2', role: 'consumer' } } as never,
+        'req-1',
+      ),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
   it('returns 404 when updating a missing request', async () => {
     consult.first.mockResolvedValue(null);
 

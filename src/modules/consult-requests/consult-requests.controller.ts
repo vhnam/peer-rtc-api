@@ -31,6 +31,11 @@ export class ConsultRequestsController {
     return this.consultRequests.list(session, query);
   }
 
+  @Get(':id')
+  get(@Session() session: UserSession<typeof auth>, @Param('id') id: string) {
+    return this.consultRequests.get(session, id);
+  }
+
   @Post()
   @HttpCode(201)
   create(@Session() session: UserSession<typeof auth>, @Body() body: unknown) {

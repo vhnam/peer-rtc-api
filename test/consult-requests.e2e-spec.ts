@@ -402,6 +402,58 @@ describe('Consult requests (e2e)', () => {
     );
   });
 
+  it('lets a consumer get their consult request by id', async () => {
+    const consumer = await signUpConsumer('consult-get');
+    const created = await createRequest(consumer.cookies, {
+      note: 'Need a consult',
+    });
+
+    const found = await request(server)
+      .get(`/api/consult-requests/${created.id}`)
+      .set('Origin', CONSUMER_ORIGIN)
+      .set('Cookie', consumer.cookies)
+      .expect(200);
+
+    expect(found.body).toMatchObject({
+      id: created.id,
+      requestId: created.requestId,
+      consumerId: consumer.user.id,
+      providerId: null,
+      status: 'pending',
+      note: 'Need a consult',
+      consumer: expect.objectContaining({ id: consumer.user.id }),
+    });
+  });
+
+  it('lets a provider get an unassigned pending request by id', async () => {
+    const consumer = await signUpConsumer('consult-get-provider-consumer');
+    const created = await createRequest(consumer.cookies);
+    const provider = await signInProvider('consult-get-provider');
+
+    const found = await request(server)
+      .get(`/api/consult-requests/${created.id}`)
+      .set('Origin', PROVIDER_ORIGIN)
+      .set('Cookie', provider.cookies)
+      .expect(200);
+
+    expect(found.body).toMatchObject({
+      id: created.id,
+      status: 'pending',
+    });
+  });
+
+  it('does not let another consumer get a request by id', async () => {
+    const owner = await signUpConsumer('consult-get-owner');
+    const other = await signUpConsumer('consult-get-other');
+    const created = await createRequest(owner.cookies, { note: 'private' });
+
+    await request(server)
+      .get(`/api/consult-requests/${created.id}`)
+      .set('Origin', CONSUMER_ORIGIN)
+      .set('Cookie', other.cookies)
+      .expect(404);
+  });
+
   it('does not list another consumer’s requests', async () => {
     const owner = await signUpConsumer('consult-owner');
     const other = await signUpConsumer('consult-other');
@@ -441,11 +493,18 @@ describe('Consult requests (e2e)', () => {
       .expect(409);
   });
 
-  it('rejects updating an unknown request', async () => {
+  it('rejects getting or updating an unknown request', async () => {
     const consumer = await signUpConsumer('consult-missing');
+    const missingId = '00000000-0000-4000-8000-000000000000';
 
     await request(server)
-      .patch('/api/consult-requests/00000000-0000-4000-8000-000000000000')
+      .get(`/api/consult-requests/${missingId}`)
+      .set('Origin', CONSUMER_ORIGIN)
+      .set('Cookie', consumer.cookies)
+      .expect(404);
+
+    await request(server)
+      .patch(`/api/consult-requests/${missingId}`)
       .set('Origin', CONSUMER_ORIGIN)
       .set('Cookie', consumer.cookies)
       .send({ status: 'cancelled' })
@@ -479,6 +538,7 @@ describe('Consult requests (e2e)', () => {
 
   it('rejects unauthenticated access', async () => {
     await request(server).get('/api/consult-requests').expect(401);
+    await request(server).get('/api/consult-requests/req-1').expect(401);
     await request(server).post('/api/consult-requests').send({}).expect(401);
     await request(server)
       .patch('/api/consult-requests/req-1')

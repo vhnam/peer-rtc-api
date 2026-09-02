@@ -15,6 +15,7 @@ import {
 } from './consult-request.id.js';
 import {
   actorFromSession,
+  canAccessConsultRequest,
   planCreateConsultRequest,
   planUpdateConsultRequest,
 } from './consult-request.rules.js';
@@ -81,6 +82,25 @@ export class ConsultRequestsService {
       page: query.page,
       limit: query.limit,
     };
+  }
+
+  async get(
+    session: UserSession<typeof auth>,
+    id: string,
+  ): Promise<ConsultRequestDto> {
+    const actor = unwrap(actorFromSession(session));
+    const existing = await this.withConsumer().first({
+      id,
+    });
+    if (!existing) {
+      throw new NotFoundException('Consult request not found');
+    }
+
+    const row = asConsultRequestRow(existing);
+    if (!canAccessConsultRequest(actor, row)) {
+      throw new NotFoundException('Consult request not found');
+    }
+    return serializeConsultRequest(row);
   }
 
   async create(
