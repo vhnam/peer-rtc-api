@@ -20,12 +20,17 @@ import type { Server, Socket } from 'socket.io';
 
 import { parseCorsOrigins } from '../../common/cors-origins.js';
 import { auth } from '../auth/auth.js';
+import { serializeUser } from '../consult-requests/consult-request.serialize.js';
 import {
   parseConsumerResponseBody,
   parseProviderJoinedBody,
 } from './call-session.dto.js';
 import { CALL_SOCKET_EVENTS } from './call-session.events.js';
-import type { CallRoomPayload } from './call-session.types.js';
+import type {
+  CallAcceptedPayload,
+  CallDeclinedPayload,
+  CallRoomPayload,
+} from './call-session.types.js';
 import { CallSessionsService } from './call-sessions.service.js';
 
 @WebSocketGateway({
@@ -106,11 +111,7 @@ export class CallSessionsGateway
       const payload: CallRoomPayload = {
         consultRequestId: started.session.consultRequestId,
       };
-      this.emitToUser(
-        consumerId,
-        CALL_SOCKET_EVENTS.providerJoined,
-        payload,
-      );
+      this.emitToUser(consumerId, CALL_SOCKET_EVENTS.providerJoined, payload);
     } catch (error) {
       throw asWsException(error, 'Could not start the call');
     }
@@ -118,45 +119,111 @@ export class CallSessionsGateway
 
   @SubscribeMessage(CALL_SOCKET_EVENTS.consumerAccepted)
   async consumerAccepted(
-    @ConnectedSocket() client: Socket,
     @MessageBody() body: unknown,
     @Session() session: UserSession<typeof auth>,
-  ) {
-    return this.consumerResponded(client, session, body, 'consumer_accepted');
-  }
-
-  @SubscribeMessage(CALL_SOCKET_EVENTS.consumerDeclined)
-  async consumerDeclined(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() body: unknown,
-    @Session() session: UserSession<typeof auth>,
-  ) {
-    return this.consumerResponded(client, session, body, 'consumer_declined');
-  }
-
-  private async consumerResponded(
-    _client: Socket,
-    session: UserSession<typeof auth>,
-    body: unknown,
-    event: 'consumer_accepted' | 'consumer_declined',
   ) {
     try {
       const { consultRequestId } = parseConsumerResponseBody(body);
       const responded = await this.callSessions.respondToCall(
         session,
         consultRequestId,
-        event,
+        CALL_SOCKET_EVENTS.consumerAccepted,
       );
-      const payload: CallRoomPayload = {
+      const payload: CallAcceptedPayload = {
         consultRequestId: responded.session.consultRequestId,
+        consumer: serializeUser(session.user),
       };
-      this.emitToUser(responded.session.providerId, event, payload);
+      this.emitToUser(
+        responded.session.providerId,
+        CALL_SOCKET_EVENTS.consumerAccepted,
+        payload,
+      );
     } catch (error) {
       throw asWsException(error, 'Call signaling failed');
     }
   }
 
-  private emitToUser(userId: string, event: string, payload: CallRoomPayload) {
+  @SubscribeMessage(CALL_SOCKET_EVENTS.consumerDeclined)
+  async consumerDeclined(
+    @MessageBody() body: unknown,
+    @Session() session: UserSession<typeof auth>,
+  ) {
+    try {
+      const { consultRequestId } = parseConsumerResponseBody(body);
+      const responded = await this.callSessions.respondToCall(
+        session,
+        consultRequestId,
+        CALL_SOCKET_EVENTS.consumerDeclined,
+      );
+      const payload: CallDeclinedPayload = {
+        consultRequestId: responded.session.consultRequestId,
+        consumerId: responded.session.consumerId,
+      };
+      this.emitToUser(
+        responded.session.providerId,
+        CALL_SOCKET_EVENTS.consumerDeclined,
+        payload,
+      );
+    } catch (error) {
+      throw asWsException(error, 'Call signaling failed');
+    }
+  }
+
+  @SubscribeMessage(CALL_SOCKET_EVENTS.providerEnded)
+  async providerEnded(
+    @MessageBody() body: unknown,
+    @Session() session: UserSession<typeof auth>,
+  ) {
+    try {
+      const { consultRequestId } = parseConsumerResponseBody(body);
+      const ended = await this.callSessions.endCall(
+        session,
+        consultRequestId,
+        CALL_SOCKET_EVENTS.providerEnded,
+      );
+      const payload: CallRoomPayload = {
+        consultRequestId: ended.session.consultRequestId,
+      };
+      this.emitToUser(
+        ended.session.consumerId,
+        CALL_SOCKET_EVENTS.providerEnded,
+        payload,
+      );
+    } catch (error) {
+      throw asWsException(error, 'Call signaling failed');
+    }
+  }
+
+  @SubscribeMessage(CALL_SOCKET_EVENTS.consumerEnded)
+  async consumerEnded(
+    @MessageBody() body: unknown,
+    @Session() session: UserSession<typeof auth>,
+  ) {
+    try {
+      const { consultRequestId } = parseConsumerResponseBody(body);
+      const ended = await this.callSessions.endCall(
+        session,
+        consultRequestId,
+        CALL_SOCKET_EVENTS.consumerEnded,
+      );
+      const payload: CallRoomPayload = {
+        consultRequestId: ended.session.consultRequestId,
+      };
+      this.emitToUser(
+        ended.session.providerId,
+        CALL_SOCKET_EVENTS.consumerEnded,
+        payload,
+      );
+    } catch (error) {
+      throw asWsException(error, 'Call signaling failed');
+    }
+  }
+
+  private emitToUser(
+    userId: string,
+    event: string,
+    payload: CallRoomPayload | CallAcceptedPayload | CallDeclinedPayload,
+  ) {
     const sockets = this.socketsByUser.get(userId);
     if (!sockets) {
       return;

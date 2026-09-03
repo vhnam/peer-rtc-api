@@ -22,7 +22,6 @@
     "postinstall": "prisma skills sync || exit 0",
     "contract:emit": "prisma contract emit",
     "db:init": "prisma db init",
-    "db:seed:provider": "tsx scripts/seed-provider.ts",
     "db:seed:consult-requests": "tsx scripts/seed-consult-requests.ts"
   },
   "dependencies": {
@@ -37,7 +36,8 @@
     "dotenv": "^17.4.2",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "socket.io": "^4.8.3"
+    "socket.io": "^4.8.3",
+    "temporal-polyfill": "^1.0.4"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.11",

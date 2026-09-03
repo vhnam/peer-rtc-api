@@ -107,6 +107,50 @@ describe('planCallSignal', () => {
     ).toMatchObject({ ok: false, status: 403 });
   });
 
+  it('lets the provider end an open call', () => {
+    expect(
+      planCallSignal(
+        { id: 'provider-1', role: 'provider' },
+        accepted,
+        'provider_ended',
+        pendingCall,
+      ),
+    ).toEqual({ ok: true, value: true });
+  });
+
+  it('blocks a consumer from emitting provider_ended', () => {
+    expect(
+      planCallSignal(
+        { id: 'consumer-1', role: 'consumer' },
+        accepted,
+        'provider_ended',
+        pendingCall,
+      ),
+    ).toMatchObject({ ok: false, status: 403 });
+  });
+
+  it('lets the consumer end an open call', () => {
+    expect(
+      planCallSignal(
+        { id: 'consumer-1', role: 'consumer' },
+        accepted,
+        'consumer_ended',
+        pendingCall,
+      ),
+    ).toEqual({ ok: true, value: true });
+  });
+
+  it('blocks a provider from emitting consumer_ended', () => {
+    expect(
+      planCallSignal(
+        { id: 'provider-1', role: 'provider' },
+        accepted,
+        'consumer_ended',
+        pendingCall,
+      ),
+    ).toMatchObject({ ok: false, status: 403 });
+  });
+
   it('requires the provider to start before the consumer responds', () => {
     expect(
       planCallSignal(

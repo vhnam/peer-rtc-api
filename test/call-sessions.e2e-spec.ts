@@ -185,14 +185,22 @@ describe('Call session sockets (e2e)', () => {
       const started = await providerJoined;
       expect(started).toEqual({ consultRequestId });
 
-      const accepted = onceEvent<{ consultRequestId: string }>(
-        providerSocket,
-        CALL_SOCKET_EVENTS.consumerAccepted,
-      );
+      const accepted = onceEvent<{
+        consultRequestId: string;
+        consumer: { id: string; name: string; email: string; image: null };
+      }>(providerSocket, CALL_SOCKET_EVENTS.consumerAccepted);
       consumerSocket.emit(CALL_SOCKET_EVENTS.consumerAccepted, {
         consultRequestId,
       });
-      await expect(accepted).resolves.toEqual({ consultRequestId });
+      await expect(accepted).resolves.toEqual({
+        consultRequestId,
+        consumer: {
+          id: consumer.user.id,
+          name: 'call-consumer',
+          email: consumer.user.email,
+          image: null,
+        },
+      });
     } finally {
       providerSocket.close();
       consumerSocket.close();
@@ -218,14 +226,101 @@ describe('Call session sockets (e2e)', () => {
       });
       await expect(providerJoined).resolves.toEqual({ consultRequestId });
 
-      const declined = onceEvent<{ consultRequestId: string }>(
-        providerSocket,
-        CALL_SOCKET_EVENTS.consumerDeclined,
-      );
+      const declined = onceEvent<{
+        consultRequestId: string;
+        consumerId: string;
+      }>(providerSocket, CALL_SOCKET_EVENTS.consumerDeclined);
       consumerSocket.emit(CALL_SOCKET_EVENTS.consumerDeclined, {
         consultRequestId,
       });
-      await expect(declined).resolves.toEqual({ consultRequestId });
+      await expect(declined).resolves.toEqual({
+        consultRequestId,
+        consumerId,
+      });
+    } finally {
+      providerSocket.close();
+      consumerSocket.close();
+    }
+  });
+
+  it('forwards provider_ended from the provider to the consumer', async () => {
+    const { consumer, provider, consultRequestId, consumerId } =
+      await acceptedConsult();
+    const providerSocket = connect(provider.cookies, PROVIDER_ORIGIN);
+    const consumerSocket = connect(consumer.cookies, CONSUMER_ORIGIN);
+
+    try {
+      await Promise.all([connected(providerSocket), connected(consumerSocket)]);
+
+      const providerJoined = onceEvent<{ consultRequestId: string }>(
+        consumerSocket,
+        CALL_SOCKET_EVENTS.providerJoined,
+      );
+      providerSocket.emit(CALL_SOCKET_EVENTS.providerJoined, {
+        consultRequestId,
+        consumerId,
+      });
+      await expect(providerJoined).resolves.toEqual({ consultRequestId });
+
+      const accepted = onceEvent<{ consultRequestId: string }>(
+        providerSocket,
+        CALL_SOCKET_EVENTS.consumerAccepted,
+      );
+      consumerSocket.emit(CALL_SOCKET_EVENTS.consumerAccepted, {
+        consultRequestId,
+      });
+      await accepted;
+
+      const providerEnded = onceEvent<{ consultRequestId: string }>(
+        consumerSocket,
+        CALL_SOCKET_EVENTS.providerEnded,
+      );
+      providerSocket.emit(CALL_SOCKET_EVENTS.providerEnded, {
+        consultRequestId,
+      });
+      await expect(providerEnded).resolves.toEqual({ consultRequestId });
+    } finally {
+      providerSocket.close();
+      consumerSocket.close();
+    }
+  });
+
+  it('forwards consumer_ended from the consumer to the provider', async () => {
+    const { consumer, provider, consultRequestId, consumerId } =
+      await acceptedConsult();
+    const providerSocket = connect(provider.cookies, PROVIDER_ORIGIN);
+    const consumerSocket = connect(consumer.cookies, CONSUMER_ORIGIN);
+
+    try {
+      await Promise.all([connected(providerSocket), connected(consumerSocket)]);
+
+      const providerJoined = onceEvent<{ consultRequestId: string }>(
+        consumerSocket,
+        CALL_SOCKET_EVENTS.providerJoined,
+      );
+      providerSocket.emit(CALL_SOCKET_EVENTS.providerJoined, {
+        consultRequestId,
+        consumerId,
+      });
+      await expect(providerJoined).resolves.toEqual({ consultRequestId });
+
+      const accepted = onceEvent<{ consultRequestId: string }>(
+        providerSocket,
+        CALL_SOCKET_EVENTS.consumerAccepted,
+      );
+      consumerSocket.emit(CALL_SOCKET_EVENTS.consumerAccepted, {
+        consultRequestId,
+      });
+      await accepted;
+
+      const consumerEnded = onceEvent<{ consultRequestId: string }>(
+        providerSocket,
+        CALL_SOCKET_EVENTS.consumerEnded,
+      );
+      consumerSocket.emit(CALL_SOCKET_EVENTS.consumerEnded, {
+        consultRequestId,
+      });
+      await expect(consumerEnded).resolves.toEqual({ consultRequestId });
     } finally {
       providerSocket.close();
       consumerSocket.close();

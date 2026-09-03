@@ -1,3 +1,4 @@
+import './temporal.js';
 import { readFileSync } from 'node:fs';
 
 import { Logger } from '@nestjs/common';
