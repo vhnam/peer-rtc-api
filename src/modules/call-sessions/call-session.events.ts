@@ -4,6 +4,7 @@ export const CALL_SOCKET_EVENTS = {
   consumerAccepted: 'consumer_accepted',
   consumerDeclined: 'consumer_declined',
   consumerEnded: 'consumer_ended',
+  consumerNotPickup: 'consumer_not_pickup',
 } as const;
 
 export type CallSocketEvent =

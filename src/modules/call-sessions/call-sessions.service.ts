@@ -86,6 +86,31 @@ export class CallSessionsService {
     };
   }
 
+  async reportConsumerNotPickup(
+    session: UserSession<typeof auth>,
+    consultRequestId: string,
+  ): Promise<SignalCallRoomResult> {
+    const actor = unwrap(actorFromSession(session));
+    const consult = await this.requireConsult(consultRequestId);
+    const call = await this.findOpenSession(consult.id);
+    unwrap(planCallSignal(actor, consult, 'consumer_not_pickup', call));
+    if (!call) {
+      throw new ConflictException('Provider has not started the call');
+    }
+
+    const row = await this.updateSession(call.id, {
+      status: 'canceled',
+      endedAt: nowInstant(),
+      endReason: 'not_pickup',
+    });
+
+    return {
+      session: serializeCallSession(row),
+      actor,
+      event: 'consumer_not_pickup',
+    };
+  }
+
   async endCall(
     session: UserSession<typeof auth>,
     consultRequestId: string,

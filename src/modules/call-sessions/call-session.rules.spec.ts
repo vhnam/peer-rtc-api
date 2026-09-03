@@ -107,6 +107,39 @@ describe('planCallSignal', () => {
     ).toMatchObject({ ok: false, status: 403 });
   });
 
+  it('lets the provider report a missed pickup on a pending call', () => {
+    expect(
+      planCallSignal(
+        { id: 'provider-1', role: 'provider' },
+        accepted,
+        'consumer_not_pickup',
+        pendingCall,
+      ),
+    ).toEqual({ ok: true, value: true });
+  });
+
+  it('blocks a consumer from reporting a missed pickup', () => {
+    expect(
+      planCallSignal(
+        { id: 'consumer-1', role: 'consumer' },
+        accepted,
+        'consumer_not_pickup',
+        pendingCall,
+      ),
+    ).toMatchObject({ ok: false, status: 403 });
+  });
+
+  it('blocks reporting a missed pickup after the consumer accepted', () => {
+    expect(
+      planCallSignal(
+        { id: 'provider-1', role: 'provider' },
+        accepted,
+        'consumer_not_pickup',
+        { ...pendingCall, status: 'accepted' },
+      ),
+    ).toMatchObject({ ok: false, status: 409 });
+  });
+
   it('lets the provider end an open call', () => {
     expect(
       planCallSignal(

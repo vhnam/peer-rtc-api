@@ -1,5 +1,11 @@
 # peer-rtc-api
 
+## 0.4.0
+
+### Minor Changes
+
+- Add `consumer_not_pickup` Socket.IO call signaling: the provider emits after a missed pickup, the server cancels the pending session with `endReason: not_pickup`, and forwards the event to the consumer.
+
 ## 0.3.0
 
 ### Minor Changes
