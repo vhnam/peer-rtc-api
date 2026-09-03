@@ -1,10 +1,10 @@
 # peer-rtc-api
 
-## Unreleased
+## 0.3.0
 
 ### Minor Changes
 
-- Enrich Socket.IO call signaling: `consumer_accepted` includes the consumer, `consumer_declined` includes `consumerId`, and `provider_ended` / `consumer_ended` hang-up events are forwarded to the other party. Load a Temporal polyfill so Prisma timestamptz codecs work on Node 24.
+- 0839e7b: Enrich Socket.IO call signaling: `consumer_accepted` includes the consumer, `consumer_declined` includes `consumerId`, and `provider_ended` / `consumer_ended` hang-up events are forwarded to the other party. Load a Temporal polyfill so Prisma timestamptz codecs work on Node 24.
 
 ## 0.2.0
 
