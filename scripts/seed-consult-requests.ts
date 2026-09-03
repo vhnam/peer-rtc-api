@@ -5,18 +5,19 @@ import {
 } from '../src/modules/consult-requests/consult-request.id.js';
 import { CONSULT_REQUEST_STATUSES } from '../src/modules/consult-requests/consult-request.types.js';
 import { db } from '../src/prisma/db.js';
+import { nowInstant } from '../src/prisma/timestamps.js';
 
 const consumerEmail =
-  process.env.SEED_CONSUMER_EMAIL ?? 'consumer@example.com';
+  process.env.SEED_CONSUMER_EMAIL ?? 'chet.baker@yopmail.com';
 const consumerPassword =
   process.env.SEED_CONSUMER_PASSWORD ?? 'Password123!';
-const consumerName = process.env.SEED_CONSUMER_NAME ?? 'Seed Consumer';
+const consumerName = process.env.SEED_CONSUMER_NAME ?? 'Chet Baker';
 
 const providerEmail =
-  process.env.SEED_PROVIDER_EMAIL ?? 'provider@example.com';
+  process.env.SEED_PROVIDER_EMAIL ?? 'namvh@peer-rtc.io';
 const providerPassword =
   process.env.SEED_PROVIDER_PASSWORD ?? 'Password123!';
-const providerName = process.env.SEED_PROVIDER_NAME ?? 'Seed Provider';
+const providerName = process.env.SEED_PROVIDER_NAME ?? 'Nam Vo';
 
 const NOTE_PREFIX = '[seed]';
 
@@ -79,7 +80,7 @@ async function seedConsultRequest(input: {
     return { created: false, row: existing };
   }
 
-  const now = Temporal.Now.instant();
+  const now = nowInstant();
   const assigned =
     input.status === 'accepted' || input.status === 'closed'
       ? input.providerId

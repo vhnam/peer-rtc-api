@@ -137,6 +137,38 @@ describe('CallSessionsService', () => {
     });
   });
 
+  it('closes the session when the provider ends the call', async () => {
+    call.all.mockResolvedValue([pendingSession()]);
+
+    const result = await service.endCall(
+      { user: { id: 'provider-1', role: 'provider' } } as never,
+      'req-1',
+      'provider_ended',
+    );
+
+    expect(result.event).toBe('provider_ended');
+    expect(result.session).toMatchObject({
+      status: 'closed',
+      endReason: 'ended',
+    });
+  });
+
+  it('closes the session when the consumer ends the call', async () => {
+    call.all.mockResolvedValue([pendingSession()]);
+
+    const result = await service.endCall(
+      { user: { id: 'consumer-1', role: 'consumer' } } as never,
+      'req-1',
+      'consumer_ended',
+    );
+
+    expect(result.event).toBe('consumer_ended');
+    expect(result.session).toMatchObject({
+      status: 'closed',
+      endReason: 'ended',
+    });
+  });
+
   it('forbids the consumer from starting the call', async () => {
     await expect(
       service.startCall(

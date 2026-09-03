@@ -60,6 +60,56 @@ export function planCallSignal(
     return { ok: true, value: true };
   }
 
+  if (event === 'provider_ended') {
+    if (actor.role !== 'provider' || actor.id !== consult.providerId) {
+      return {
+        ok: false,
+        status: 403,
+        message: 'Only the assigned provider can end the call',
+      };
+    }
+    if (!call) {
+      return {
+        ok: false,
+        status: 409,
+        message: 'Provider has not started the call',
+      };
+    }
+    if (call.status !== 'pending' && call.status !== 'accepted') {
+      return {
+        ok: false,
+        status: 409,
+        message: 'Call is no longer open',
+      };
+    }
+    return { ok: true, value: true };
+  }
+
+  if (event === 'consumer_ended') {
+    if (actor.role !== 'consumer' || actor.id !== consult.consumerId) {
+      return {
+        ok: false,
+        status: 403,
+        message: 'Only the consumer can end the call',
+      };
+    }
+    if (!call) {
+      return {
+        ok: false,
+        status: 409,
+        message: 'Provider has not started the call',
+      };
+    }
+    if (call.status !== 'pending' && call.status !== 'accepted') {
+      return {
+        ok: false,
+        status: 409,
+        message: 'Call is no longer open',
+      };
+    }
+    return { ok: true, value: true };
+  }
+
   if (!call) {
     return {
       ok: false,

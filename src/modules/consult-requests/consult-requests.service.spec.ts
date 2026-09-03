@@ -358,15 +358,13 @@ describe('ConsultRequestsService', () => {
         providerId: 'provider-1',
       }),
     ]);
-    consult.first
-      .mockResolvedValueOnce(pendingRow())
-      .mockResolvedValueOnce(
-        pendingRow({
-          status: 'accepted',
-          providerId: 'provider-1',
-          provider: providerDto(),
-        }),
-      );
+    consult.first.mockResolvedValueOnce(pendingRow()).mockResolvedValueOnce(
+      pendingRow({
+        status: 'accepted',
+        providerId: 'provider-1',
+        provider: providerDto(),
+      }),
+    );
 
     const updated = await service.update(
       { user: { id: 'provider-1', role: 'provider' } } as never,

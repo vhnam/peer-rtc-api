@@ -1,3 +1,4 @@
+import '../temporal.js';
 import 'dotenv/config';
 import postgres from '@prisma/orm-postgres/runtime';
 

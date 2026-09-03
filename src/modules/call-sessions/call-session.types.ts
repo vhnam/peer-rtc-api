@@ -1,3 +1,5 @@
+import type { User } from 'better-auth';
+
 import type { ConsultRequestActor } from '../consult-requests/consult-request.types.js';
 
 export const CALL_SESSION_STATUSES = [
@@ -45,10 +47,20 @@ export type CallSessionWrite = {
 export type CallSignalEvent =
   | 'provider_joined'
   | 'consumer_accepted'
-  | 'consumer_declined';
+  | 'consumer_declined'
+  | 'provider_ended'
+  | 'consumer_ended';
 
 export type CallRoomPayload = {
   consultRequestId: string;
+};
+
+export type CallAcceptedPayload = CallRoomPayload & {
+  consumer: User;
+};
+
+export type CallDeclinedPayload = CallRoomPayload & {
+  consumerId: string;
 };
 
 export type SignalCallRoomResult = {

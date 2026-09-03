@@ -86,6 +86,32 @@ export class CallSessionsService {
     };
   }
 
+  async endCall(
+    session: UserSession<typeof auth>,
+    consultRequestId: string,
+    event: 'provider_ended' | 'consumer_ended',
+  ): Promise<SignalCallRoomResult> {
+    const actor = unwrap(actorFromSession(session));
+    const consult = await this.requireConsult(consultRequestId);
+    const call = await this.findOpenSession(consult.id);
+    unwrap(planCallSignal(actor, consult, event, call));
+    if (!call) {
+      throw new ConflictException('Provider has not started the call');
+    }
+
+    const row = await this.updateSession(call.id, {
+      status: 'closed',
+      endedAt: nowInstant(),
+      endReason: 'ended',
+    });
+
+    return {
+      session: serializeCallSession(row),
+      actor,
+      event,
+    };
+  }
+
   private readonly opening = new Map<string, Promise<CallSessionRow>>();
 
   private ensureOpenSession(input: {
