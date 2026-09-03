@@ -137,6 +137,21 @@ describe('CallSessionsService', () => {
     });
   });
 
+  it('cancels the session when the provider reports a missed pickup', async () => {
+    call.all.mockResolvedValue([pendingSession()]);
+
+    const result = await service.reportConsumerNotPickup(
+      { user: { id: 'provider-1', role: 'provider' } } as never,
+      'req-1',
+    );
+
+    expect(result.event).toBe('consumer_not_pickup');
+    expect(result.session).toMatchObject({
+      status: 'canceled',
+      endReason: 'not_pickup',
+    });
+  });
+
   it('closes the session when the provider ends the call', async () => {
     call.all.mockResolvedValue([pendingSession()]);
 

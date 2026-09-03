@@ -169,6 +169,30 @@ export class CallSessionsGateway
     }
   }
 
+  @SubscribeMessage(CALL_SOCKET_EVENTS.consumerNotPickup)
+  async consumerNotPickup(
+    @MessageBody() body: unknown,
+    @Session() session: UserSession<typeof auth>,
+  ) {
+    try {
+      const { consultRequestId } = parseConsumerResponseBody(body);
+      const reported = await this.callSessions.reportConsumerNotPickup(
+        session,
+        consultRequestId,
+      );
+      const payload: CallRoomPayload = {
+        consultRequestId: reported.session.consultRequestId,
+      };
+      this.emitToUser(
+        reported.session.consumerId,
+        CALL_SOCKET_EVENTS.consumerNotPickup,
+        payload,
+      );
+    } catch (error) {
+      throw asWsException(error, 'Call signaling failed');
+    }
+  }
+
   @SubscribeMessage(CALL_SOCKET_EVENTS.providerEnded)
   async providerEnded(
     @MessageBody() body: unknown,

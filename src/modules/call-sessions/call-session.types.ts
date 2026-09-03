@@ -48,6 +48,7 @@ export type CallSignalEvent =
   | 'provider_joined'
   | 'consumer_accepted'
   | 'consumer_declined'
+  | 'consumer_not_pickup'
   | 'provider_ended'
   | 'consumer_ended';
 

@@ -60,6 +60,31 @@ export function planCallSignal(
     return { ok: true, value: true };
   }
 
+  if (event === 'consumer_not_pickup') {
+    if (actor.role !== 'provider' || actor.id !== consult.providerId) {
+      return {
+        ok: false,
+        status: 403,
+        message: 'Only the assigned provider can report a missed pickup',
+      };
+    }
+    if (!call) {
+      return {
+        ok: false,
+        status: 409,
+        message: 'Provider has not started the call',
+      };
+    }
+    if (call.status !== 'pending') {
+      return {
+        ok: false,
+        status: 409,
+        message: 'Call is no longer pending',
+      };
+    }
+    return { ok: true, value: true };
+  }
+
   if (event === 'provider_ended') {
     if (actor.role !== 'provider' || actor.id !== consult.providerId) {
       return {

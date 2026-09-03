@@ -243,6 +243,39 @@ describe('Call session sockets (e2e)', () => {
     }
   });
 
+  it('forwards consumer_not_pickup from the provider to the consumer', async () => {
+    const { consumer, provider, consultRequestId, consumerId } =
+      await acceptedConsult();
+    const providerSocket = connect(provider.cookies, PROVIDER_ORIGIN);
+    const consumerSocket = connect(consumer.cookies, CONSUMER_ORIGIN);
+
+    try {
+      await Promise.all([connected(providerSocket), connected(consumerSocket)]);
+
+      const providerJoined = onceEvent<{ consultRequestId: string }>(
+        consumerSocket,
+        CALL_SOCKET_EVENTS.providerJoined,
+      );
+      providerSocket.emit(CALL_SOCKET_EVENTS.providerJoined, {
+        consultRequestId,
+        consumerId,
+      });
+      await expect(providerJoined).resolves.toEqual({ consultRequestId });
+
+      const notPickup = onceEvent<{ consultRequestId: string }>(
+        consumerSocket,
+        CALL_SOCKET_EVENTS.consumerNotPickup,
+      );
+      providerSocket.emit(CALL_SOCKET_EVENTS.consumerNotPickup, {
+        consultRequestId,
+      });
+      await expect(notPickup).resolves.toEqual({ consultRequestId });
+    } finally {
+      providerSocket.close();
+      consumerSocket.close();
+    }
+  });
+
   it('forwards provider_ended from the provider to the consumer', async () => {
     const { consumer, provider, consultRequestId, consumerId } =
       await acceptedConsult();
